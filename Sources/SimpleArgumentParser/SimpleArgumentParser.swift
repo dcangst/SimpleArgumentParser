@@ -112,8 +112,11 @@ public struct ParseResult {
     let options: [String: Option]
     let description: String?
 
-    public subscript(name: String) -> String? {
-        options[name]?.value
+    public subscript(name: String) -> String {
+        guard let option: Option = options[name] else {
+            fatalError("Option '\(name)' is not defined in the parser configuration.")
+        }
+        return option.value!
     }
 
     public func isSet(_ name: String) -> Bool {
