@@ -54,9 +54,15 @@ public struct ArgumentParser {
                 option.isSet = true
 
                 if !option.isFlag {
-                    guard let optionValue = remainingArguments.first, !optionValue.starts(with: "-")
+                    guard let optionValue: String = remainingArguments.first,
+                        !optionValue.starts(with: "-")
                     else {
                         throw ParseError.missingValue(arg)
+                    }
+                    if let possibleValues: [String] = option.possibleValues,
+                        !possibleValues.contains(optionValue)
+                    {
+                        throw ParseError.invalidValue(arg, optionValue, possibleValues)
                     }
                     remainingArguments.removeFirst()
                     option.value = optionValue
@@ -82,6 +88,7 @@ public enum ParseError: Error, CustomStringConvertible {
     case unknownOption(String)
     case duplicateOption(String)
     case missingValue(String)
+    case invalidValue(String, String, [String])  // option name, invalid value, possible values
 
     public var description: String {
         switch self {
@@ -91,6 +98,9 @@ public enum ParseError: Error, CustomStringConvertible {
             return "option '\(name)' is already set."
         case .missingValue(let name):
             return "option '\(name)' expects a value but none was given."
+        case .invalidValue(let name, let value, let possibleValues):
+            return
+                "option '\(name)' has an invalid value '\(value)'. Valid values are: \(possibleValues.joined(separator: ", "))."
         }
     }
 }
@@ -138,6 +148,7 @@ public struct Option {
     var name: String
     var isFlag: Bool = false
     var value: String?
+    var possibleValues: [String]?
     var helpText: String?
     var isSet: Bool = false
 
@@ -150,19 +161,33 @@ public struct Option {
     /// - Parameter name: The option's bare name, without leading hyphens (e.g. `"h"`, `"help"`).
     ///   Look it up on a `ParseResult` with this same bare name (e.g. `isSet("h")`); use
     ///   `cliName` to get its command-line form.
-    public init(name: String, isFlag: Bool = false, value: String? = nil, helpText: String? = nil) {
+    public init(
+        name: String, isFlag: Bool = false, value: String? = nil, possibleValues: [String]? = nil,
+        helpText: String? = nil
+    ) {
         precondition(!name.isEmpty, "Option name must not be empty.")
         precondition(
             !name.starts(with: "-"),
             "Option name '\(name)' should be given without leading '-': the parser adds '-' for single-character names and '--' for longer names."
         )
         precondition(
-            !(isFlag && value != nil), "Option '\(name)' is a flag; it cannot have a default value."
+            !isFlag || value == nil, "Option '\(name)' is a flag; it cannot have a default value."
         )
+        precondition(
+            !isFlag || possibleValues == nil,
+            "Option '\(name)' is a flag; it cannot have possible values."
+        )
+        if let possibleValues: [String], let value: String {
+            precondition(
+                possibleValues.contains(value),
+                "Option '\(name)' has a default value '\(value)' that is not in its possible values \(possibleValues)."
+            )
+        }
 
         self.name = name
         self.isFlag = isFlag
         self.helpText = helpText
         self.value = value
+        self.possibleValues = possibleValues
     }
 }

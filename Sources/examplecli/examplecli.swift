@@ -11,10 +11,10 @@ struct examplecli {
             description: "A simple Swift command line tool for parsing arguments.",
             options: [
                 Option(name: "h", isFlag: true, helpText: "Show help information"),
-                Option(name: "help", isFlag: true, helpText: "Show help information"),
-                Option(name: "v", isFlag: true, helpText: "Show version information"),
-                Option(name: "version", isFlag: true, helpText: "Show version information"),
                 Option(name: "o", value: "default.txt", helpText: "Specify output file"),
+                Option(
+                    name: "mode", value: "awesome", possibleValues: ["fast", "slow", "awesome"],
+                    helpText: "Choose mode of operation"),
             ]
         )
         let result: ParseResult
@@ -25,7 +25,7 @@ struct examplecli {
             exit(1)
         }
 
-        if result.isSet("h") || result.isSet("help") {
+        if result.isSet("h") {
             result.printHelp()
             return
         }
@@ -33,7 +33,6 @@ struct examplecli {
         result.printResult()
 
         print(result["o"] ?? "No output file specified.")
-        print(result["v"] ?? "No version information specified.")
 
     }
 }
