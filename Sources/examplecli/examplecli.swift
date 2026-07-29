@@ -47,8 +47,9 @@ struct examplecli {
         }
 
         print(
-            "the flag is: \(result["f"]). But better usage is to use isSet to get a boolean: \(result.isSet("f"))"
+            "the flag is: \(result["f"])"
         )
+        // get a boolean with `result.isSet("f")`
         print("Required option: \(result["foo"])")
         print("Optional option: \(result["bar"])")
 
