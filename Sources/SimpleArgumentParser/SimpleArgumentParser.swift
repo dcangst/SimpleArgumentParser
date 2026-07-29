@@ -92,7 +92,7 @@ public struct ArgumentParser {
             orderedOptions.map { $0.cliString.count }.max() ?? 0, "-h, --help".count)
         let descriptionIndent: Int = cliLength + columnSeperator.count + indent
         let descriptionWidth: Int = width - descriptionIndent
-        print(descriptionWidth)
+
         for option: Option in orderedOptions {
             let optionHelpString: String =
                 indentString
