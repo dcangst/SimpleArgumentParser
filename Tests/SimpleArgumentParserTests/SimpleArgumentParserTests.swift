@@ -236,14 +236,16 @@ func variadicArityRequiresPrefixThrows() throws {
         Issue.record("Expected .wrongArgumentCount, got \(error)")
         return
     }
-    #expect(expectedDescription == "at least 1 argument (INPUTPATH, FILES)")
+    #expect(expectedDescription == "at least 1 argument (INPUTPATH, FILES...)")
     #expect(got == 0)
 }
 
-@Test("single- and multi-character option names derive the correct hyphen count", arguments: [
-    ("v", "-v"),
-    ("version", "--version"),
-])
+@Test(
+    "single- and multi-character option names derive the correct hyphen count",
+    arguments: [
+        ("v", "-v"),
+        ("version", "--version"),
+    ])
 func optionCliNameHyphenCount(name: String, expectedCliName: String) {
     #expect(Option(name: name).cliName == expectedCliName)
 }
@@ -259,6 +261,8 @@ func parseErrorDescriptions() {
         ParseError.missingRequiredOption("--tag").description
             == "option '--tag' is required but was not provided.")
     #expect(
-        ParseError.wrongArgumentCount(expectedDescription: "2 arguments (INPUTPATH, OUTPUTPATH)", got: 1)
-            .description == "expected 2 arguments (INPUTPATH, OUTPUTPATH), but got 1.")
+        ParseError.wrongArgumentCount(
+            expectedDescription: "2 arguments (INPUTPATH, OUTPUTPATH)", got: 1
+        )
+        .description == "expected 2 arguments (INPUTPATH, OUTPUTPATH), but got 1.")
 }
